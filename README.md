@@ -1,93 +1,294 @@
-# tg-frontend
+# Deployment Guide
 
+## Prerequisites
 
+| Tool | Install |
+|------|---------|
+| Node.js (LTS) | https://nodejs.org |
+| AWS CLI | https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html |
+| AWS SAM CLI | https://github.com/aws/aws-sam-cli/releases/latest |
+| zip (Mac only) | Pre-installed on macOS |
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
+Verify installations:
 ```
-cd existing_repo
-git remote add origin https://gitlab.aws.dev/twichian/tg-frontend.git
-git branch -M main
-git push -uf origin main
+node -v && npm -v && aws --version && sam --version
 ```
 
-## Integrate with your tools
+---
 
-- [ ] [Set up project integrations](https://gitlab.aws.dev/twichian/tg-frontend/-/settings/integrations)
+## Step 1 — Configure AWS Credentials (SSO)
 
-## Collaborate with your team
+Run the SSO configuration:
+```
+aws configure sso
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Follow the prompts as shown below:
+```
+SSO session name (Recommended): user1-playground
+SSO start URL [None]: https://d-9667a65e00.awsapps.com/start
+SSO region [None]: ap-southeast-1
+SSO registration scopes [sso:account:access]:
+```
 
-## Test and Deploy
+A browser window will open for you to authorize. After approval, continue:
+```
+The only AWS account available to you is: 876908012372
+Using the account ID 876908012372
+The only role available to you is: DeveloperAccess
+Using the role name "DeveloperAccess"
+Default client Region [ap-southeast-1]:
+CLI default output format (json if not specified) [None]:
+Profile name [DeveloperAccess-876908012372]: default
+```
 
-Use the built-in continuous integration in GitLab.
+> **Tip:** Name the profile `default` so you don't need `--profile` on every command. Otherwise, use a custom name and pass `--profile yourname` to all commands.
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Verify your configuration:
+```
+aws sts get-caller-identity
+```
 
-***
+**Login before each session:**
+```
+aws sso login
+# or with named profile
+aws sso login --profile myprofile
+```
 
-# Editing this README
+---
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+## Step 2 — Download and Extract Source Code
 
-## Suggestions for a good README
+Download `tg-frontend.zip` and extract it.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+**Mac/Linux:**
+```bash
+unzip tg-frontend.zip
+cd tg-frontend
+```
 
-## Name
-Choose a self-explaining name for your project.
+**Windows (PowerShell):**
+```powershell
+Expand-Archive -Path tg-frontend.zip -DestinationPath .
+cd tg-frontend
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+You should see this structure:
+```
+tg-frontend/
+├── template.yaml
+├── deploy-frontend.sh
+├── deploy-frontend.ps1
+└── hello-world/
+    ├── src/
+    ├── public/
+    ├── package.json
+    └── .env
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+---
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+## Step 3 — Customize Deployment Parameters
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Decide on your values before deploying:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| Stack Name | CloudFormation stack name (must be unique per account/region) | `demo-tg-frontend-john-dev` |
+| Project | Project identifier (used in Amplify app name) | `demo-tg-frontend-john` |
+| Environment | Deployment environment | `dev`, `staging`, `prod` |
+| FunctionCode | Cost center / function code | `5A`, `5B`, `5C`, `5D`, `TD`, `5DB`, `D5A` |
+| ITSupport | Your name (IT support contact) | `John` |
+| ApplicationName | Display name for the application | `Hello World` |
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+> **Important:** Stack name and Project must be unique per AWS account/region. Include your name as a suffix to avoid conflicts with other users (e.g., `demo-tg-frontend-john-dev`).
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+---
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+## Step 4 — Deploy Backend (SAM)
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+This creates the Amplify app and branch via CloudFormation.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+**Mac/Linux:**
+```bash
+# Default profile
+sam deploy \
+  --template-file template.yaml \
+  --stack-name <STACK_NAME> \
+  --region ap-southeast-1 \
+  --capabilities CAPABILITY_IAM \
+  --parameter-overrides \
+    "Project=<PROJECT>" \
+    "Environment=<ENVIRONMENT>" \
+    "FunctionCode=<FUNCTION_CODE>" \
+    "ITSupport=<IT_SUPPORT>" \
+    "ApplicationName=<APPLICATION_NAME>"
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+# Named profile
+sam deploy \
+  --template-file template.yaml \
+  --stack-name <STACK_NAME> \
+  --region ap-southeast-1 \
+  --capabilities CAPABILITY_IAM \
+  --profile myprofile \
+  --parameter-overrides \
+    "Project=<PROJECT>" \
+    "Environment=<ENVIRONMENT>" \
+    "FunctionCode=<FUNCTION_CODE>" \
+    "ITSupport=<IT_SUPPORT>" \
+    "ApplicationName=<APPLICATION_NAME>"
+```
 
-## License
-For open source projects, say how it is licensed.
+**Windows (PowerShell):**
+```powershell
+# Default profile
+sam deploy `
+  --template-file template.yaml `
+  --stack-name <STACK_NAME> `
+  --region ap-southeast-1 `
+  --capabilities CAPABILITY_IAM `
+  --parameter-overrides `
+    "Project=<PROJECT>" `
+    "Environment=<ENVIRONMENT>" `
+    "FunctionCode=<FUNCTION_CODE>" `
+    "ITSupport=<IT_SUPPORT>" `
+    "ApplicationName=<APPLICATION_NAME>"
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+# Named profile
+sam deploy `
+  --template-file template.yaml `
+  --stack-name <STACK_NAME> `
+  --region ap-southeast-1 `
+  --capabilities CAPABILITY_IAM `
+  --profile myprofile `
+  --parameter-overrides `
+    "Project=<PROJECT>" `
+    "Environment=<ENVIRONMENT>" `
+    "FunctionCode=<FUNCTION_CODE>" `
+    "ITSupport=<IT_SUPPORT>" `
+    "ApplicationName=<APPLICATION_NAME>"
+```
+
+Example using values from Step 3:
+```
+sam deploy --template-file template.yaml --stack-name demo-tg-frontend-john-dev --region ap-southeast-1 --capabilities CAPABILITY_IAM --parameter-overrides "Project=demo-tg-frontend-john" "Environment=dev" "FunctionCode=5D" "ITSupport=John" "ApplicationName=Hello World"
+```
+
+---
+
+## Step 5 — Get the Amplify App ID
+
+The App ID is shown in the SAM deploy output:
+
+```
+CloudFormation outputs from deployed stack
+---------------------------------------------------------------------------
+Outputs
+---------------------------------------------------------------------------
+Key                 AppId
+Description         -
+Value               d1le7mkrsdlvjo
+
+Key                 DefaultDomain
+Description         -
+Value               https://main.d1le7mkrsdlvjo.amplifyapp.com
+---------------------------------------------------------------------------
+```
+
+Note the **AppId** value (e.g., `d1le7mkrsdlvjo`) — you'll need it in Step 7.
+
+If you missed it, you can retrieve it later:
+
+**Mac/Linux:**
+```bash
+aws cloudformation describe-stacks \
+  --stack-name <STACK_NAME> \
+  --region ap-southeast-1 \
+  --query "Stacks[0].Outputs" \
+  --output table \
+  --no-cli-pager
+
+# With named profile
+aws cloudformation describe-stacks \
+  --stack-name <STACK_NAME> \
+  --region ap-southeast-1 \
+  --query "Stacks[0].Outputs" \
+  --output table \
+  --profile myprofile \
+  --no-cli-pager
+```
+
+**Windows (PowerShell):**
+```powershell
+aws cloudformation describe-stacks `
+  --stack-name <STACK_NAME> `
+  --region ap-southeast-1 `
+  --query "Stacks[0].Outputs" `
+  --output table `
+  --no-cli-pager
+
+# With named profile
+aws cloudformation describe-stacks `
+  --stack-name <STACK_NAME> `
+  --region ap-southeast-1 `
+  --query "Stacks[0].Outputs" `
+  --output table `
+  --profile myprofile `
+  --no-cli-pager
+```
+
+Note the **AppId** value (e.g., `d2139yu6c0ysj6`).
+
+---
+
+## Step 6 — Configure Environment
+
+Edit `hello-world/.env` with your backend settings:
+
+```
+REACT_APP_COGNITO_CLIENT_ID=your_cognito_client_id
+REACT_APP_API_GATEWAY_URL=https://your-api-id.execute-api.ap-southeast-1.amazonaws.com/dev
+REACT_APP_USE_MOCK=false
+REACT_APP_USE_AUTH=true
+```
+
+> These values are baked into the app at build time. Always update `.env` before building.
+
+---
+
+## Step 7 — Build and Deploy Frontend
+
+**Mac/Linux:**
+```bash
+# Default profile
+./deploy-frontend.sh YOUR_APP_ID
+
+# Named profile
+./deploy-frontend.sh YOUR_APP_ID myprofile
+```
+
+**Windows (PowerShell):**
+```powershell
+# Default profile
+.\deploy-frontend.ps1 -AppId YOUR_APP_ID
+
+# Named profile
+.\deploy-frontend.ps1 -AppId YOUR_APP_ID -Profile myprofile
+```
+
+Your app will be live at: `https://main.YOUR_APP_ID.amplifyapp.com`
+
+---
+
+## Subsequent Deploys
+
+After code changes, just re-run Step 7. No need to repeat Steps 4–6.
+
+---
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| PowerShell: "running scripts is disabled" | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` |
