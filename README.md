@@ -379,3 +379,53 @@ After code changes, just re-run Step 7. No need to repeat Steps 4–6.
 
 ## Screenshots
 ![Hello World Inventory App](screenshot.png)
+
+## Additional info
+
+template.yaml — SAM/CloudFormation template
+- Creates an Amplify App and a main branch
+- Tags resources with Project, Environment, FunctionCode, ITSupport, ApplicationName for governance
+- Outputs the App ID and URL after deploy
+
+hello-world/src/ — React app source
+
+index.js → Entry point. Renders <App /> into the DOM.
+
+App.js → Main component. Handles two states:
+- Not logged in → shows login form, calls login() from auth.js
+- Logged in → shows navbar + <ProductList />
+- Checks localStorage on load so refreshing doesn't lose the session
+
+auth.js → Cognito authentication:
+- login(username, password) → calls Cognito InitiateAuth API, stores the ID token in localStorage
+- getCurrentToken() → returns the stored token (used by api.js for API calls)
+- logout() → clears the token
+
+api.js → API layer:
+- If REACT_APP_USE_MOCK=true → returns hardcoded mock data (no backend needed)
+- Otherwise → calls the API Gateway URL from .env, attaches the Cognito token as Bearer auth header
+
+ProductList.js → CRUD UI:
+- Fetches products from /items on load
+- Table with Edit/Delete buttons per row
+- "New Product" button opens a modal form (ProductModal)
+- Edit also opens the modal pre-filled with existing data
+- Calls POST /items, PUT /items/:id, DELETE /items/:id via api.js
+
+hello-world/.env — Config baked into the app at build time:
+REACT_APP_COGNITO_CLIENT_ID=...     # Cognito app client
+REACT_APP_API_GATEWAY_URL=...       # Backend API endpoint
+REACT_APP_USE_MOCK=false            # true = skip backend, use fake data
+REACT_APP_USE_AUTH=true             # true = require login
+
+
+Deploy scripts — both do the same thing:
+1. npm install + npm run build → produces build/ folder
+2. aws amplify create-deployment → gets a presigned upload URL
+3. Zip the build/ folder (bash uses zip, PowerShell uses tar)
+4. Upload the zip to the presigned URL
+5. aws amplify start-deployment → triggers Amplify to serve the new build
+
+Flow:
+User → deploy script → npm build → zip → upload to Amplify
+User → browser → Amplify CDN → React app → login via Cognito → API Gateway → Lambda → DB
