@@ -413,13 +413,17 @@ ProductList.js → CRUD UI:
 - Calls POST /items, PUT /items/:id, DELETE /items/:id via api.js
 
 hello-world/.env — Config baked into the app at build time:
+
+```
 REACT_APP_COGNITO_CLIENT_ID=...     # Cognito app client
 REACT_APP_API_GATEWAY_URL=...       # Backend API endpoint
 REACT_APP_USE_MOCK=false            # true = skip backend, use fake data
 REACT_APP_USE_AUTH=true             # true = require login
+```
 
 
 Deploy scripts — both do the same thing:
+
 1. npm install + npm run build → produces build/ folder
 2. aws amplify create-deployment → gets a presigned upload URL
 3. Zip the build/ folder (bash uses zip, PowerShell uses tar)
