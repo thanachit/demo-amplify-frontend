@@ -376,3 +376,6 @@ After code changes, just re-run Step 7. No need to repeat Steps 4–6.
 | Issue | Fix |
 |-------|-----|
 | PowerShell: "running scripts is disabled" | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` |
+
+## Screenshots
+![Hello World Inventory App](screenshot.png)
