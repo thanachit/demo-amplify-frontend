@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Hello World React app on Amplify Hosting
+
+Parameters:
+  Project:
+    Type: String
+    Default: demo-tg-sam-frontend
+  Environment:
+    Type: String
+    Default: dev
+    AllowedValues: [dev, staging, prod]
+  FunctionCode:
+    Type: String
+    Default: 5D
+  ITSupport:
+    Type: String
+    Default: Bank
+  ApplicationName:
+    Type: String
+    Default: Hello World
+
+Resources:
+  AmplifyApp:
+    Type: AWS::Amplify::App
+    Properties:
+      Name: !Sub "${Project}-${Environment}"
+      Platform: WEB
+      Tags:
+        - Key: FunctionCode
+          Value: !Ref FunctionCode
+        - Key: ITSupport
+          Value: !Ref ITSupport
+        - Key: ApplicationName
+          Value: !Ref ApplicationName
+        - Key: Project
+          Value: !Ref Project
+        - Key: Environment
+          Value: !Ref Environment
+
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      AppId: !GetAtt AmplifyApp.AppId
+      BranchName: main
+      EnableAutoBuild: false
+      Tags:
+        - Key: FunctionCode
+          Value: !Ref FunctionCode
+        - Key: ITSupport
+          Value: !Ref ITSupport
+        - Key: ApplicationName
+          Value: !Ref ApplicationName
+        - Key: Project
+          Value: !Ref Project
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  AppId:
+    Value: !GetAtt AmplifyApp.AppId
+  DefaultDomain:
+    Value: !Sub "https://main.${AmplifyApp.DefaultDomain}"
