@@ -303,6 +303,68 @@ Your app will be live at: `https://main.YOUR_APP_ID.amplifyapp.com`
 
 ---
 
+## Appendix: Example Build and deploy command output
+
+```
+PS C:\development\tg-frontend> .\deploy-frontend.ps1 d1le7mkrsdlvjo
+
+Security warning
+Run only scripts that you trust. While scripts from the internet can be useful, this script can potentially harm your
+computer. If you trust this script, use the Unblock-File cmdlet to allow the script to run without this warning
+message. Do you want to run C:\development\tg-frontend\deploy-frontend.ps1?
+[D] Do not run  [R] Run once  [S] Suspend  [?] Help (default is "D"): R
+1/4 Installing dependencies...
+
+...
+
+2/4 Building...
+
+> build
+> react-scripts build
+
+(node:26096) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  101.97 kB  build\static\js\main.69877982.js
+  1.59 kB    build\static\js\963.1163e1d0.chunk.js
+  1.44 kB    build\static\css\main.46102120.css
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  npm install -g serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+
+3/4 Creating deployment...
+Zipping build...
+Uploading...
+
+Upload complete.
+4/4 Starting deployment...
+{
+    "jobSummary": {
+        "jobArn": "arn:aws:amplify:ap-southeast-1:876908012372:apps/d1le7mkrsdlvjo/branches/main/jobs/0000000003",
+        "jobId": "3",
+        "status": "PENDING"
+    }
+}
+
+Done! https://main.d1le7mkrsdlvjo.amplifyapp.com
+PS C:\development\tg-frontend>
+
+```
+
 ## Subsequent Deploys
 
 After code changes, just re-run Step 7. No need to repeat Steps 4–6.
