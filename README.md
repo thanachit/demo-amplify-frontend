@@ -16,6 +16,28 @@ node -v && npm -v && aws --version && sam --version
 
 ---
 
+## Hello World Inventory — AWS Amplify + SAM Deployment Demo
+
+This is a ready-to-deploy template that demonstrates how to host a React frontend on AWS Amplify using AWS SAM for infrastructure provisioning — with one-command deploy
+scripts for both Windows (PowerShell) and Mac/Linux (Bash). No Git-based CI/CD pipeline required.
+
+What this template demonstrates:
+- Defining an Amplify app and branch as infrastructure-as-code using SAM/CloudFormation
+- Deploying a pre-built React app to Amplify via CLI upload
+- Cross-platform deployment: deploy-frontend.ps1 for Windows, deploy-frontend.sh for Mac/Linux
+- Resource tagging for cost tracking and governance
+
+Included application features:
+- Cognito authentication with persistent login sessions
+- Product CRUD operations via API Gateway + Lambda backend
+- Mock mode for offline development without a backend
+
+Architecture:
+- **Hosting:** AWS Amplify (manual deployment, no Git required)
+- **Auth:** Amazon Cognito
+- **Backend:** API Gateway + Lambda (separate stack)
+- **Infrastructure:** SAM template (template.yaml)
+
 ## Step 1 — Configure AWS Credentials (SSO)
 
 Run the SSO configuration:
