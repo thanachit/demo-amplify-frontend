@@ -48,20 +48,20 @@ aws configure sso
 Follow the prompts as shown below:
 ```
 SSO session name (Recommended): user1-playground
-SSO start URL [None]: https://d-9667a65e00.awsapps.com/start
+SSO start URL [None]: <starturl>
 SSO region [None]: ap-southeast-1
 SSO registration scopes [sso:account:access]:
 ```
 
 A browser window will open for you to authorize. After approval, continue:
 ```
-The only AWS account available to you is: 876908012372
-Using the account ID 876908012372
+The only AWS account available to you is: 
+Using the account ID 
 The only role available to you is: DeveloperAccess
 Using the role name "DeveloperAccess"
 Default client Region [ap-southeast-1]:
 CLI default output format (json if not specified) [None]:
-Profile name [DeveloperAccess-876908012372]: default
+Profile name [DeveloperAccess-<accountid>]: default
 ```
 
 > **Tip:** Name the profile `default` so you don't need `--profile` on every command. Otherwise, use a custom name and pass `--profile yourname` to all commands.
@@ -120,7 +120,7 @@ Decide on your values before deploying:
 | Stack Name | CloudFormation stack name (must be unique per account/region) | `demo-tg-frontend-john-dev` |
 | Project | Project identifier (used in Amplify app name) | `demo-tg-frontend-john` |
 | Environment | Deployment environment | `dev`, `staging`, `prod` |
-| FunctionCode | Cost center / function code | `5A`, `5B`, `5C`, `5D`, `TD`, `5DB`, `D5A` |
+| FunctionCode | Cost center / function code | `5X`|
 | ITSupport | Your name (IT support contact) | `John` |
 | ApplicationName | Display name for the application | `Hello World` |
 
@@ -214,11 +214,11 @@ Value               d1le7mkrsdlvjo
 
 Key                 DefaultDomain
 Description         -
-Value               https://main.d1le7mkrsdlvjo.amplifyapp.com
+Value               AppURL ...
 ---------------------------------------------------------------------------
 ```
 
-Note the **AppId** value (e.g., `d1le7mkrsdlvjo`) — you'll need it in Step 7.
+Note the **AppId** value (e.g., `d1le7mkrsdllp`) — you'll need it in Step 7.
 
 If you missed it, you can retrieve it later:
 
@@ -354,13 +354,13 @@ Upload complete.
 4/4 Starting deployment...
 {
     "jobSummary": {
-        "jobArn": "arn:aws:amplify:ap-southeast-1:876908012372:apps/d1le7mkrsdlvjo/branches/main/jobs/0000000003",
+        "jobArn": "arn:aws:amplify:ap-southeast-1:12345678910:apps/123454334535/branches/main/jobs/0000000003",
         "jobId": "3",
         "status": "PENDING"
     }
 }
 
-Done! https://main.d1le7mkrsdlvjo.amplifyapp.com
+Done! https://main.d1l88888888888.amplifyapp.com
 PS C:\development\tg-frontend>
 
 ```
