@@ -210,7 +210,7 @@ Outputs
 ---------------------------------------------------------------------------
 Key                 AppId
 Description         -
-Value               d1le7mkrsdlvjo
+Value               d1le7mkrsdlvjg
 
 Key                 DefaultDomain
 Description         -
@@ -260,7 +260,7 @@ aws cloudformation describe-stacks `
   --no-cli-pager
 ```
 
-Note the **AppId** value (e.g., `d2139yu6c0ysj6`).
+Note the **AppId** value (e.g., `d1le7mkrsdlvjg`).
 
 ---
 
