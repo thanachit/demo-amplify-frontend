@@ -38,7 +38,7 @@ Architecture:
 - **Backend:** API Gateway + Lambda (separate stack)
 - **Infrastructure:** SAM template (template.yaml)
 
-## Step 1 — Configure AWS Credentials (SSO) - optional 
+## Step 1 — Configure AWS Credentials (SSO) - can be skipped if already complete this step. 
 
 Run the SSO configuration:
 ```
@@ -80,7 +80,7 @@ aws sso login --profile devprofile
 
 ---
 
-## Step 2 — Clone template from Github
+## Step 2 — Clone frontend template from Github
 
 ```
 git clone https://github.com/thanachit/demo-amplify-frontend.git my-frontend
@@ -98,7 +98,7 @@ my-frontend/
     ├── src/
     ├── public/
     ├── package.json
-    └── .env
+    └── .env.example
 ```
 
 ---
