@@ -38,7 +38,7 @@ Architecture:
 - **Backend:** API Gateway + Lambda (separate stack)
 - **Infrastructure:** SAM template (template.yaml)
 
-## Step 1 — Configure AWS Credentials (SSO)
+## Step 1 — Configure AWS Credentials (SSO) - optional 
 
 Run the SSO configuration:
 ```
@@ -61,7 +61,7 @@ The only role available to you is: DeveloperAccess
 Using the role name "DeveloperAccess"
 Default client Region [ap-southeast-1]:
 CLI default output format (json if not specified) [None]:
-Profile name [DeveloperAccess-<accountid>]: default
+Profile name [DeveloperAccess-<accountid>]: devprofile 
 ```
 
 > **Tip:** Name the profile `default` so you don't need `--profile` on every command. Otherwise, use a custom name and pass `--profile yourname` to all commands.
@@ -75,30 +75,22 @@ aws sts get-caller-identity
 ```
 aws sso login
 # or with named profile
-aws sso login --profile myprofile
+aws sso login --profile devprofile
 ```
 
 ---
 
-## Step 2 — Download and Extract Source Code
+## Step 2 — Clone template from Github
 
-Download `tg-frontend.zip` and extract it.
-
-**Mac/Linux:**
-```bash
-unzip tg-frontend.zip
-cd tg-frontend
 ```
-
-**Windows (PowerShell):**
-```powershell
-Expand-Archive -Path tg-frontend.zip -DestinationPath .
-cd tg-frontend
+git clone https://github.com/thanachit/demo-amplify-frontend.git my-frontend
+cd my-frontend
 ```
 
 You should see this structure:
+
 ```
-tg-frontend/
+my-frontend/
 ├── template.yaml
 ├── deploy-frontend.sh
 ├── deploy-frontend.ps1
@@ -122,7 +114,7 @@ Decide on your values before deploying:
 | Environment | Deployment environment | `dev`, `staging`, `prod` |
 | FunctionCode | Cost center / function code | `5X`|
 | ITSupport | Your name (IT support contact) | `John` |
-| ApplicationName | Display name for the application | `Hello World` |
+| ApplicationName | Your Application Name | `Hello World` |
 
 > **Important:** Stack name and Project must be unique per AWS account/region. Include your name as a suffix to avoid conflicts with other users (e.g., `demo-tg-frontend-john-dev`).
 
@@ -153,7 +145,7 @@ sam deploy \
   --stack-name <STACK_NAME> \
   --region ap-southeast-1 \
   --capabilities CAPABILITY_IAM \
-  --profile myprofile \
+  --profile devprofile \
   --parameter-overrides \
     "Project=<PROJECT>" \
     "Environment=<ENVIRONMENT>" \
@@ -183,7 +175,7 @@ sam deploy `
   --stack-name <STACK_NAME> `
   --region ap-southeast-1 `
   --capabilities CAPABILITY_IAM `
-  --profile myprofile `
+  --profile devprofile `
   --parameter-overrides `
     "Project=<PROJECT>" `
     "Environment=<ENVIRONMENT>" `
@@ -194,7 +186,7 @@ sam deploy `
 
 Example using values from Step 3:
 ```
-sam deploy --template-file template.yaml --stack-name demo-tg-frontend-john-dev --region ap-southeast-1 --capabilities CAPABILITY_IAM --parameter-overrides "Project=demo-tg-frontend-john" "Environment=dev" "FunctionCode=5D" "ITSupport=John" "ApplicationName=Hello World"
+sam deploy --template-file template.yaml --stack-name demo-tg-frontend-john-dev --region ap-southeast-1 --capabilities CAPABILITY_IAM --parameter-overrides "Project=demo-tg-frontend-john" "Environment=dev" "FunctionCode=5D" "ITSupport=John" "ApplicationName=Hello World" --profile devprofile
 ```
 
 ---
@@ -237,7 +229,7 @@ aws cloudformation describe-stacks \
   --region ap-southeast-1 \
   --query "Stacks[0].Outputs" \
   --output table \
-  --profile myprofile \
+  --profile devprofile \
   --no-cli-pager
 ```
 
@@ -256,7 +248,7 @@ aws cloudformation describe-stacks `
   --region ap-southeast-1 `
   --query "Stacks[0].Outputs" `
   --output table `
-  --profile myprofile `
+  --profile devprofile `
   --no-cli-pager
 ```
 
@@ -266,7 +258,9 @@ Note the **AppId** value (e.g., `d1le7mkrsdlvjg`).
 
 ## Step 6 — Configure Environment
 
-Edit `hello-world/.env` with your backend settings:
+Create `hello-world/.env`  from `hello-world/.env.example` with your backend settings:
+Get Cognito Client ID and API URL from backend stack deployment.
+change REACT_APP_USE_MOCK=false and REACT_APP_USE_AUTH=true
 
 ```
 REACT_APP_COGNITO_CLIENT_ID=your_cognito_client_id
@@ -281,13 +275,15 @@ REACT_APP_USE_AUTH=true
 
 ## Step 7 — Build and Deploy Frontend
 
+change directory to `my-frontend`
+
 **Mac/Linux:**
 ```bash
 # Default profile
 ./deploy-frontend.sh YOUR_APP_ID
 
 # Named profile
-./deploy-frontend.sh YOUR_APP_ID myprofile
+./deploy-frontend.sh YOUR_APP_ID devprofile
 ```
 
 **Windows (PowerShell):**
@@ -296,7 +292,7 @@ REACT_APP_USE_AUTH=true
 .\deploy-frontend.ps1 -AppId YOUR_APP_ID
 
 # Named profile
-.\deploy-frontend.ps1 -AppId YOUR_APP_ID -Profile myprofile
+.\deploy-frontend.ps1 -AppId YOUR_APP_ID -Profile devprofile
 ```
 
 Your app will be live at: `https://main.YOUR_APP_ID.amplifyapp.com`
