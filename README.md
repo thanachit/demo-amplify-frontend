@@ -61,10 +61,10 @@ The only role available to you is: DeveloperAccess
 Using the role name "DeveloperAccess"
 Default client Region [ap-southeast-1]:
 CLI default output format (json if not specified) [None]:
-Profile name [DeveloperAccess-<accountid>]: devprofile 
+Profile name [DeveloperAccess-<accountid>]: dev 
 ```
 
-> **Tip:** Name the profile `default` so you don't need `--profile` on every command. Otherwise, use a custom name and pass `--profile yourname` to all commands.
+> **Tip:** Name the profile `default` so you don't need `--profile` on every command. Otherwise, use a custom name `dev` and pass `--profile dev` to all commands.
 
 Verify your configuration:
 ```
@@ -75,7 +75,7 @@ aws sts get-caller-identity
 ```
 aws sso login
 # or with named profile
-aws sso login --profile devprofile
+aws sso login --profile dev
 ```
 
 ---
@@ -145,7 +145,7 @@ sam deploy \
   --stack-name <STACK_NAME> \
   --region ap-southeast-1 \
   --capabilities CAPABILITY_IAM \
-  --profile devprofile \
+  --profile dev \
   --parameter-overrides \
     "Project=<PROJECT>" \
     "Environment=<ENVIRONMENT>" \
@@ -175,7 +175,7 @@ sam deploy `
   --stack-name <STACK_NAME> `
   --region ap-southeast-1 `
   --capabilities CAPABILITY_IAM `
-  --profile devprofile `
+  --profile dev `
   --parameter-overrides `
     "Project=<PROJECT>" `
     "Environment=<ENVIRONMENT>" `
@@ -186,7 +186,7 @@ sam deploy `
 
 Example using values from Step 3:
 ```
-sam deploy --template-file template.yaml --stack-name demo-tg-frontend-john-dev --region ap-southeast-1 --capabilities CAPABILITY_IAM --parameter-overrides "Project=demo-tg-frontend-john" "Environment=dev" "FunctionCode=5D" "ITSupport=John" "ApplicationName=Hello World" --profile devprofile
+sam deploy --template-file template.yaml --stack-name demo-tg-frontend-john-dev --region ap-southeast-1 --capabilities CAPABILITY_IAM --parameter-overrides "Project=demo-tg-frontend-john" "Environment=dev" "FunctionCode=5D" "ITSupport=John" "ApplicationName=Hello World" --profile dev
 ```
 
 ---
@@ -229,7 +229,7 @@ aws cloudformation describe-stacks \
   --region ap-southeast-1 \
   --query "Stacks[0].Outputs" \
   --output table \
-  --profile devprofile \
+  --profile dev \
   --no-cli-pager
 ```
 
@@ -248,7 +248,7 @@ aws cloudformation describe-stacks `
   --region ap-southeast-1 `
   --query "Stacks[0].Outputs" `
   --output table `
-  --profile devprofile `
+  --profile dev `
   --no-cli-pager
 ```
 
@@ -283,7 +283,7 @@ change directory to `my-frontend`
 ./deploy-frontend.sh YOUR_APP_ID
 
 # Named profile
-./deploy-frontend.sh YOUR_APP_ID devprofile
+./deploy-frontend.sh YOUR_APP_ID dev
 ```
 
 **Windows (PowerShell):**
@@ -292,7 +292,7 @@ change directory to `my-frontend`
 .\deploy-frontend.ps1 -AppId YOUR_APP_ID
 
 # Named profile
-.\deploy-frontend.ps1 -AppId YOUR_APP_ID -Profile devprofile
+.\deploy-frontend.ps1 -AppId YOUR_APP_ID -Profile dev
 ```
 
 Your app will be live at: `https://main.YOUR_APP_ID.amplifyapp.com`
